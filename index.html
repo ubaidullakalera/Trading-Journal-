@@ -128,6 +128,15 @@
         }
       };
 
+      // Calculate metrics per account
+      const getAccountMetrics = (accountType) => {
+        const accountTrades = trades.filter(trade => trade.accountType === accountType);
+        const totalTrades = accountTrades.length;
+        const netPL = accountTrades.reduce((sum, trade) => sum + parseFloat(trade.profitLoss || 0), 0).toFixed(2);
+        const winRate = accountTrades.length > 0 ? ((accountTrades.filter(t => parseFloat(t.profitLoss) > 0).length / accountTrades.length) * 100).toFixed(2) : '0.00';
+        return { totalTrades, netPL, winRate, currency: accountTrades.length > 0 ? accountTrades[0].currency : 'USD' };
+      };
+
       return (
         <div className="flex min-h-screen">
           {/* Sidebar */}
@@ -160,19 +169,29 @@
               {view === 'dashboard' && (
                 <div className="bg-gray-800 p-4 rounded-lg shadow-lg">
                   <h2 className="text-xl font-semibold mb-4">Dashboard</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="bg-gray-700 p-4 rounded-md">
-                      <h3 className="text-lg">Total Trades</h3>
-                      <p className="text-2xl">{trades.length}</p>
-                    </div>
-                    <div className="bg-gray-700 p-4 rounded-md">
-                      <h3 className="text-lg">Net P/L</h3>
-                      <p className="text-2xl">{trades.reduce((sum, trade) => sum + parseFloat(trade.profitLoss || 0), 0).toFixed(2)} {trades.length > 0 ? trades[0].currency : 'USD'}</p>
-                    </div>
-                    <div className="bg-gray-700 p-4 rounded-md">
-                      <h3 className="text-lg">Win Rate</h3>
-                      <p className="text-2xl">{((trades.filter(t => parseFloat(t.profitLoss) > 0).length / trades.length) * 100 || 0).toFixed(2)}%</p>
-                    </div>
+                  <div className="space-y-6">
+                    {['Funded Account', 'Personal Account', 'Client Account'].map(account => {
+                      const { totalTrades, netPL, winRate, currency } = getAccountMetrics(account);
+                      return (
+                        <div key={account} className="bg-gray-700 p-4 rounded-md">
+                          <h3 className="text-lg font-medium">{account}</h3>
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
+                            <div>
+                              <p className="text-sm">Total Trades</p>
+                              <p className="text-2xl">{totalTrades}</p>
+                            </div>
+                            <div>
+                              <p className="text-sm">Net P/L</p>
+                              <p className="text-2xl">{netPL} {currency}</p>
+                            </div>
+                            <div>
+                              <p className="text-sm">Win Rate</p>
+                              <p className="text-2xl">{winRate}%</p>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               )}
@@ -201,7 +220,6 @@
                         <option value="Funded Account">Funded Account (USD)</option>
                         <option value="Personal Account">Personal Account (AED)</option>
                         <option value="Client Account">Client Account (INR)</option>
-                        <option value="Jabir Account">Jabir Account (USD)</option>
                       </select>
                     </div>
                     <div className="flex flex-col md:flex-row gap-4">
