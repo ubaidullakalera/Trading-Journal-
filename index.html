@@ -33,30 +33,25 @@
       const [isSidebarOpen, setIsSidebarOpen] = useState(false);
       const [previewImage, setPreviewImage] = useState(null);
 
-      // Approximate exchange rates (adjust these values as needed)
       const exchangeRates = {
-        USD_AED: 3.67, // 1 USD = 3.67 AED
-        USD_INR: 83.5  // 1 USD = 83.5 INR
+        USD_AED: 3.67,
+        USD_INR: 83.5
       };
 
-      // Load trades from localStorage
       useEffect(() => {
         const savedTrades = localStorage.getItem('trades');
         if (savedTrades) setTrades(JSON.parse(savedTrades));
       }, []);
 
-      // Save trades to localStorage
       useEffect(() => {
         localStorage.setItem('trades', JSON.stringify(trades));
       }, [trades]);
 
-      // Handle input changes
       const handleInputChange = (e) => {
         const { name, value } = e.target;
         setNewTrade({ ...newTrade, [name]: value });
       };
 
-      // Handle image upload
       const handleImageUpload = (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -69,14 +64,12 @@
         }
       };
 
-      // Remove image
       const handleRemoveImage = () => {
         setNewTrade({ ...newTrade, attachedImage: null });
         setPreviewImage(null);
         document.getElementById('attachedImage').value = '';
       };
 
-      // Add trade
       const handleAddTrade = () => {
         if (!newTrade.date || !newTrade.accountType || !newTrade.instrument || !newTrade.entryPrice || !newTrade.exitPrice || !newTrade.size) {
           alert('Please fill all required fields');
@@ -99,7 +92,6 @@
           finalProfitLoss = (profitLossUSD * exchangeRates.USD_INR).toFixed(2);
           currency = 'INR';
         } else {
-          // Funded Account and Jabir Account use USD
           finalProfitLoss = profitLossUSD.toFixed(2);
           currency = 'USD';
         }
@@ -130,7 +122,6 @@
         document.getElementById('attachedImage').value = '';
       };
 
-      // Delete trade
       const handleDeleteTrade = (id) => {
         if (window.confirm('Are you sure you want to delete this trade?')) {
           setTrades(trades.filter(trade => trade.id !== id));
@@ -145,9 +136,9 @@
               <h2 className="text-2xl font-bold">Trading Journal</h2>
             </div>
             <nav className="mt-4">
-              <button onClick={() => setView('dashboard')} className={`w-full text-left px-4 py-2 ${view === 'dashboard' ? 'bg-blue-600' : 'hover:bg-gray-700'}`}>Dashboard</button>
-              <button onClick={() => setView('add')} className={`w-full text-left px-4 py-2 ${view === 'add' ? 'bg-blue-600' : 'hover:bg-gray-700'}`}>Add Trade</button>
-              <button onClick={() => setView('log')} className={`w-full text-left px-4 py-2 ${view === 'log' ? 'bg-blue-600' : 'hover:bg-gray-700'}`}>Trade Log</button>
+              <button onClick={() => { setView('dashboard'); setIsSidebarOpen(false); }} className={`w-full text-left px-4 py-2 ${view === 'dashboard' ? 'bg-blue-600' : 'hover:bg-gray-700'}`}>Dashboard</button>
+              <button onClick={() => { setView('add'); setIsSidebarOpen(false); }} className={`w-full text-left px-4 py-2 ${view === 'add' ? 'bg-blue-600' : 'hover:bg-gray-700'}`}>Add Trade</button>
+              <button onClick={() => { setView('log'); setIsSidebarOpen(false); }} className={`w-full text-left px-4 py-2 ${view === 'log' ? 'bg-blue-600' : 'hover:bg-gray-700'}`}>Trade Log</button>
             </nav>
           </div>
 
@@ -165,9 +156,9 @@
             </header>
 
             {/* Content */}
-            <main className="flex-1 p-6 max-w-4xl mx-auto w-full">
+            <main className="flex-1 p-4 max-w-4xl mx-auto w-full">
               {view === 'dashboard' && (
-                <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
+                <div className="bg-gray-800 p-4 rounded-lg shadow-lg">
                   <h2 className="text-xl font-semibold mb-4">Dashboard</h2>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="bg-gray-700 p-4 rounded-md">
@@ -187,112 +178,122 @@
               )}
 
               {view === 'add' && (
-                <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
+                <div className="bg-gray-800 p-4 rounded-lg shadow-lg">
                   <h2 className="text-xl font-semibold mb-4">Add Trade</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <input
-                      type="date"
-                      name="date"
-                      value={newTrade.date}
-                      onChange={handleInputChange}
-                      className="p-2 border rounded-md bg-gray-700 text-white w-full"
-                      required
-                    />
-                    <select
-                      name="accountType"
-                      value={newTrade.accountType}
-                      onChange={handleInputChange}
-                      className="p-2 border rounded-md bg-gray-700 text-white w-full"
-                      required
-                    >
-                      <option value="">Select Account Type</option>
-                      <option value="Funded Account">Funded Account (USD)</option>
-                      <option value="Personal Account">Personal Account (AED)</option>
-                      <option value="Client Account">Client Account (INR)</option>
-                      <option value="Jabir Account">Jabir Account (USD)</option>
-                    </select>
-                    <select
-                      name="instrument"
-                      value={newTrade.instrument}
-                      onChange={handleInputChange}
-                      className="p-2 border rounded-md bg-gray-700 text-white w-full"
-                      required
-                    >
-                      <option value="">Select Instrument</option>
-                      <option value="XAUUSD">XAUUSD</option>
-                      <option value="BTCUSD">BTCUSD</option>
-                      <option value="EURUSD">EURUSD</option>
-                      <option value="USDJPY">USDJPY</option>
-                    </select>
-                    <select
-                      name="buySell"
-                      value={newTrade.buySell}
-                      onChange={handleInputChange}
-                      className="p-2 border rounded-md bg-gray-700 text-white w-full"
-                    >
-                      <option value="Buy">Buy</option>
-                      <option value="Sell">Sell</option>
-                    </select>
-                    <input
-                      type="number"
-                      name="entryPrice"
-                      value={newTrade.entryPrice}
-                      onChange={handleInputChange}
-                      placeholder="Entry Price"
-                      className="p-2 border rounded-md bg-gray-700 text-white w-full"
-                      required
-                    />
-                    <input
-                      type="number"
-                      name="exitPrice"
-                      value={newTrade.exitPrice}
-                      onChange={handleInputChange}
-                      placeholder="Exit Price"
-                      className="p-2 border rounded-md bg-gray-700 text-white w-full"
-                      required
-                    />
-                    <input
-                      type="number"
-                      name="size"
-                      value={newTrade.size}
-                      onChange={handleInputChange}
-                      placeholder="Size (e.g., 1 lot)"
-                      className="p-2 border rounded-md bg-gray-700 text-white w-full"
-                      required
-                    />
-                    <select
-                      name="timing"
-                      value={newTrade.timing}
-                      onChange={handleInputChange}
-                      className="p-2 border rounded-md bg-gray-700 text-white w-full"
-                    >
-                      <option value="">Select Timing</option>
-                      <option value="2:00 AM - 6:00 AM">2:00 AM - 6:00 AM</option>
-                      <option value="6:00 AM - 10:00 AM">6:00 AM - 10:00 AM</option>
-                      <option value="10:00 AM - 2:00 PM">10:00 AM - 2:00 PM</option>
-                      <option value="2:00 PM - 6:00 PM">2:00 PM - 6:00 PM</option>
-                      <option value="6:00 PM - 8:00 PM">6:00 PM - 8:00 PM</option>
-                      <option value="8:00 PM - 12:00 AM">8:00 PM - 12:00 AM</option>
-                    </select>
-                    <select
-                      name="fibonacciEntryLevel"
-                      value={newTrade.fibonacciEntryLevel}
-                      onChange={handleInputChange}
-                      className="p-2 border rounded-md bg-gray-700 text-white w-full"
-                    >
-                      <option value="">Select Fibonacci Level</option>
-                      <option value="50%">50%</option>
-                      <option value="62%">62%</option>
-                      <option value="78.60%">78.60%</option>
-                    </select>
-                    <textarea
-                      name="notes"
-                      value={newTrade.notes}
-                      onChange={handleInputChange}
-                      placeholder="Notes (e.g., emotions, market conditions)"
-                      className="p-2 border rounded-md bg-gray-700 text-white w-full col-span-2"
-                    />
-                    <div className="col-span-2">
+                  <div className="space-y-4">
+                    <div className="flex flex-col md:flex-row gap-4">
+                      <input
+                        type="date"
+                        name="date"
+                        value={newTrade.date}
+                        onChange={handleInputChange}
+                        className="p-2 border rounded-md bg-gray-700 text-white w-full"
+                        required
+                      />
+                      <select
+                        name="accountType"
+                        value={newTrade.accountType}
+                        onChange={handleInputChange}
+                        className="p-2 border rounded-md bg-gray-700 text-white w-full"
+                        required
+                      >
+                        <option value="">Select Account Type</option>
+                        <option value="Funded Account">Funded Account (USD)</option>
+                        <option value="Personal Account">Personal Account (AED)</option>
+                        <option value="Client Account">Client Account (INR)</option>
+                        <option value="Jabir Account">Jabir Account (USD)</option>
+                      </select>
+                    </div>
+                    <div className="flex flex-col md:flex-row gap-4">
+                      <select
+                        name="instrument"
+                        value={newTrade.instrument}
+                        onChange={handleInputChange}
+                        className="p-2 border rounded-md bg-gray-700 text-white w-full"
+                        required
+                      >
+                        <option value="">Select Instrument</option>
+                        <option value="XAUUSD">XAUUSD</option>
+                        <option value="BTCUSD">BTCUSD</option>
+                        <option value="EURUSD">EURUSD</option>
+                        <option value="USDJPY">USDJPY</option>
+                      </select>
+                      <select
+                        name="buySell"
+                        value={newTrade.buySell}
+                        onChange={handleInputChange}
+                        className="p-2 border rounded-md bg-gray-700 text-white w-full"
+                      >
+                        <option value="Buy">Buy</option>
+                        <option value="Sell">Sell</option>
+                      </select>
+                    </div>
+                    <div className="flex flex-col md:flex-row gap-4">
+                      <input
+                        type="number"
+                        name="entryPrice"
+                        value={newTrade.entryPrice}
+                        onChange={handleInputChange}
+                        placeholder="Entry Price"
+                        className="p-2 border rounded-md bg-gray-700 text-white w-full"
+                        required
+                      />
+                      <input
+                        type="number"
+                        name="exitPrice"
+                        value={newTrade.exitPrice}
+                        onChange={handleInputChange}
+                        placeholder="Exit Price"
+                        className="p-2 border rounded-md bg-gray-700 text-white w-full"
+                        required
+                      />
+                    </div>
+                    <div className="flex flex-col md:flex-row gap-4">
+                      <input
+                        type="number"
+                        name="size"
+                        value={newTrade.size}
+                        onChange={handleInputChange}
+                        placeholder="Size (e.g., 1 lot)"
+                        className="p-2 border rounded-md bg-gray-700 text-white w-full"
+                        required
+                      />
+                      <select
+                        name="timing"
+                        value={newTrade.timing}
+                        onChange={handleInputChange}
+                        className="p-2 border rounded-md bg-gray-700 text-white w-full"
+                      >
+                        <option value="">Select Timing</option>
+                        <option value="2:00 AM - 6:00 AM">2:00 AM - 6:00 AM</option>
+                        <option value="6:00 AM - 10:00 AM">6:00 AM - 10:00 AM</option>
+                        <option value="10:00 AM - 2:00 PM">10:00 AM - 2:00 PM</option>
+                        <option value="2:00 PM - 6:00 PM">2:00 PM - 6:00 PM</option>
+                        <option value="6:00 PM - 8:00 PM">6:00 PM - 8:00 PM</option>
+                        <option value="8:00 PM - 12:00 AM">8:00 PM - 12:00 AM</option>
+                      </select>
+                    </div>
+                    <div className="flex flex-col md:flex-row gap-4">
+                      <select
+                        name="fibonacciEntryLevel"
+                        value={newTrade.fibonacciEntryLevel}
+                        onChange={handleInputChange}
+                        className="p-2 border rounded-md bg-gray-700 text-white w-full"
+                      >
+                        <option value="">Select Fibonacci Level</option>
+                        <option value="50%">50%</option>
+                        <option value="62%">62%</option>
+                        <option value="78.60%">78.60%</option>
+                      </select>
+                      <textarea
+                        name="notes"
+                        value={newTrade.notes}
+                        onChange={handleInputChange}
+                        placeholder="Notes (e.g., emotions, market conditions)"
+                        className="p-2 border rounded-md bg-gray-700 text-white w-full"
+                      />
+                    </div>
+                    <div className="w-full">
                       <label className="block text-sm mb-1">Attach Chart Image</label>
                       <input
                         id="attachedImage"
@@ -313,18 +314,18 @@
                         </div>
                       )}
                     </div>
+                    <button
+                      onClick={handleAddTrade}
+                      className="mt-4 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 w-full md:w-auto"
+                    >
+                      Add Trade
+                    </button>
                   </div>
-                  <button
-                    onClick={handleAddTrade}
-                    className="mt-4 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
-                  >
-                    Add Trade
-                  </button>
                 </div>
               )}
 
               {view === 'log' && (
-                <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
+                <div className="bg-gray-800 p-4 rounded-lg shadow-lg">
                   <h2 className="text-xl font-semibold mb-4">Trade Log</h2>
                   {trades.length === 0 ? (
                     <p className="text-gray-400">No trades recorded.</p>
